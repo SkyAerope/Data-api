@@ -87,5 +87,5 @@ app.post('/api/login', (req, res) => {
 
 // 启动服务器监听指定的端口
 app.listen(PORT, () => {
-  console.log('Server is running on port 3000');
+  console.log('Server is running on port' + PORT);
 });
