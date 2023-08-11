@@ -75,18 +75,19 @@ headers = {
   'Authorization': 'Bearer <token>'
 }
 
-response = requests.post('http://localhost:3000/api/data', json=data, headers=headers)
+response = requests.post('http://localhost:3000/api/post/表名', json=data, headers=headers)
 
 if response.status_code == 200:
   print('Data inserted successfully')
 else:
   print('Failed to insert data into database. Error:', response.json().get('error'))
 ```
-确保将 <token> 替换为之前获取到的的JWT令牌。
+确保将 `<token>` 替换为之前获取到的的JWT令牌，并将`表名`替换成实际的数据表名。
 
 ## API端点
  - `POST /api/login`: 用户登录并获取JWT令牌。
- - `POST /api/data`: 将数据写入数据库。
+ - `POST /api/data`: 将数据写入数据库的`success`表（由于特殊需求开发，即将废弃）。
+ - `POST /api/post/表名`: 将数据写入数据库的`表名`表。
 ## 注意事项
 - 请确保在使用API之前将数据库连接信息正确配置到项目中。
 - 在发送请求之前，根据实际情况修改Python示例代码中的URL、用户名、密码和数据对象。

@@ -24,8 +24,6 @@ const pool = mysql.createPool({
   database: DB_NAME,
 });
 
-// 设置用于签名和验证 JWT 的密钥
-//const secretKey = 'your_secret_key';
 
 // 身份验证中间件
 function authenticateToken(req, res, next) {
@@ -57,6 +55,39 @@ app.post('/api/data', authenticateToken, (req, res) => {
 
     // 执行数据库插入操作
     connection.query('INSERT INTO success SET ?', requestData, (err, results) => { //数据写入success表
+      connection.release(); // 释放连接
+
+      if (err) {
+        console.error('Error inserting data into database: ', err);
+        return res.status(500).json({ error: 'Failed to insert data into database' });
+      }
+
+      return res.status(200).json({ message: 'Data inserted successfully' });
+    });
+  });
+});
+
+// 新增路由，处理POST请求，将数据写入指定的数据库表
+app.post('/app/post/:tableName', authenticateToken, (req, res) => {
+  const requestData = req.body; // 获取请求的数据
+  let tableName = req.params.tableName; // 获取表名
+
+  // 验证表名是否只包含字母、数字和下划线（防止SQL注入攻击）
+  const isValidTableName = /^[a-zA-Z0-9_]+$/.test(tableName);
+
+  if (!isValidTableName) {
+    return res.status(400).json({ error: 'Invalid table name' });
+  }
+
+  // 在连接池中获取一个连接
+  pool.getConnection((err, connection) => {
+    if (err) {
+      console.error('Error connecting to database: ', err);
+      return res.status(500).json({ error: 'Failed to connect to database' });
+    }
+
+    // 执行数据库插入操作
+    connection.query(`INSERT INTO ${tableName} SET ?`, requestData, (err, results) => { //数据写入指定表
       connection.release(); // 释放连接
 
       if (err) {
