@@ -68,7 +68,7 @@ app.post('/api/data', authenticateToken, (req, res) => {
 });
 
 // 新增路由，处理POST请求，将数据写入指定的数据库表
-app.post('/app/post/:tableName', authenticateToken, (req, res) => {
+app.post('/api/post/:tableName', authenticateToken, (req, res) => {
   const requestData = req.body; // 获取请求的数据
   let tableName = req.params.tableName; // 获取表名
 
