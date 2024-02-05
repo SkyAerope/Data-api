@@ -59,7 +59,10 @@ app.post('/api/data', authenticateToken, (req, res) => {
 
       if (err) {
         console.error('Error inserting data into database: ', err);
-        return res.status(500).json({ error: 'Failed to insert data into database' });
+        return res.status(500).json({ 
+          error: 'Failed to insert data into database',
+          msg: err
+        });
       }
 
       return res.status(200).json({ message: 'Data inserted successfully' });
@@ -92,7 +95,10 @@ app.post('/api/post/:tableName', authenticateToken, (req, res) => {
 
       if (err) {
         console.error('Error inserting data into database: ', err);
-        return res.status(500).json({ error: 'Failed to insert data into database' });
+        return res.status(500).json({
+          error: 'Failed to insert data into database',
+          msg: err
+        });
       }
 
       return res.status(200).json({ message: 'Data inserted successfully' });
