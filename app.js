@@ -209,11 +209,13 @@ app.post('/api/postacc/:tableName', authenticateToken, (req, res) => {
         throw new Error('Account not found in checking');
       }
 
-      // 将account插入到指定的表中
-      await connection.promise().query(
-        `INSERT INTO \`${tableName}\` (\`account\`) VALUES (?)`,
-        [account]
-      );
+      if (tableName !== 'delete') {
+        // 将account插入到指定的表中
+        await connection.promise().query(
+          `INSERT INTO \`${tableName}\` (\`account\`) VALUES (?)`,
+          [account]
+        );
+      }
 
       // 从checking表删除该account
       await connection.promise().query(
