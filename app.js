@@ -33,7 +33,7 @@ function authenticateToken(req, res, next) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  jwt.verify(token, secretKey, (err, user) => {
+  jwt.verify(token, SECRET_KEY, (err, user) => {
     if (err) {
       return res.status(403).json({ error: 'Invalid token' });
     }
