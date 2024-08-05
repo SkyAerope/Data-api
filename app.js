@@ -128,9 +128,9 @@ app.get('/api/getacc', authenticateToken, (req, res) => {
       // 锁定表
       await connection.promise().query('LOCK TABLES `unchecked` WRITE, `checking` WRITE');
 
-      // 选择一个随机记录
+      // 随机选择一条checkcount小于3的记录
       const [rows] = await connection.promise().query(
-        'SELECT `id`, `account`, `checkcount` FROM `unchecked` ORDER BY RAND() LIMIT 1'
+        'SELECT `id`, `account`, `checkcount` FROM `unchecked` WHERE `checkcount` < 3 ORDER BY RAND() LIMIT 1'
       );
 
       if (rows.length === 0) {
@@ -161,10 +161,83 @@ app.get('/api/getacc', authenticateToken, (req, res) => {
       // 如果出现错误，回滚事务
       await connection.promise().rollback();
       console.error('Transaction error: ', error);
-      res.status(500).json({
+      // 如果从错误信息是No records found，则返回404状态码
+      if (error.message === 'No records found') {
+        return res.status(404).json({ error: 'No records found' });
+      } else {
+        return res.status(500).json({
+          error: 'Transaction failed',
+          msg: error.message
+        });
+      }
+    } finally {
+      // 释放连接
+      connection.release();
+    }
+  });
+});
+
+// 提交acc
+app.post('/api/postacc/:tableName', authenticateToken, (req, res) => {
+  let tableName = req.params.tableName; // 获取表名
+  const { account } = req.body; // 获取请求的数据中的account
+
+  // 验证表名是否只包含字母、数字和下划线（防止SQL注入攻击）
+  const isValidTableName = /^[a-zA-Z0-9_]+$/.test(tableName);
+
+  if (!isValidTableName) {
+    return res.status(400).json({ error: 'Invalid table name' });
+  }
+
+  // 在连接池中获取一个连接
+  pool.getConnection(async (err, connection) => {
+    if (err) {
+      console.error('Error connecting to database: ', err);
+      return res.status(500).json({ error: 'Failed to connect to database' });
+    }
+
+    try {
+      await connection.promise().beginTransaction();
+
+      // 检查account是否存在于checking表中
+      const [rows] = await connection.promise().query(
+        'SELECT `account` FROM `checking` WHERE `account` = ?',
+        [account]
+      );
+
+      if (rows.length === 0) {
+        throw new Error('Account not found in checking');
+      }
+
+      // 将account插入到指定的表中
+      await connection.promise().query(
+        `INSERT INTO \`${tableName}\` (\`account\`) VALUES (?)`,
+        [account]
+      );
+
+      // 从checking表删除该account
+      await connection.promise().query(
+        'DELETE FROM `checking` WHERE `account` = ?',
+        [account]
+      );
+
+      // 提交事务
+      await connection.promise().commit();
+
+      return res.status(200).json({ message: 'Data inserted successfully' });
+
+    } catch (error) {
+      // 如果出现错误，回滚事务
+      await connection.promise().rollback();
+      console.error('Transaction error: ', error);
+      if (error.message === 'Account not found in checking') {
+        return res.status(404).json({ error: 'Account not found in checking' });
+      } else {
+        return res.status(500).json({
           error: 'Transaction failed',
           msg: error
         });
+      }
     } finally {
       // 释放连接
       connection.release();
