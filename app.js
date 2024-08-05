@@ -158,8 +158,9 @@ app.get('/api/getacc', authenticateToken, (req, res) => {
       res.json({ account });
 
     } catch (error) {
-      // 如果出现错误，回滚事务
+      // 如果出现错误，回滚事务，并解锁表
       await connection.promise().rollback();
+      await connection.promise().query('UNLOCK TABLES');
       console.error('Transaction error: ', error);
       // 如果从错误信息是No records found，则返回404状态码
       if (error.message === 'No records found') {
