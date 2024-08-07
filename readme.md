@@ -23,22 +23,28 @@ npm install
 ```
 
 ## 配置
+
 在开始使用API之前，你需要配置环境变量
+
 ```bash
 cp .env.example .env
 micro .env # 使用micro编辑器修改.env文件
 ```
 
 ## 运行
+
 运行以下命令启动服务器：
 
 ```bash
 npm start
 ```
+
 服务器将在 `http://localhost:3000` 上运行。
 
 ## 使用
+
 ### 登录
+
 使用以下示例Python代码登录并获取JSON Web Tokens（JWT）：
 
 ```python
@@ -56,10 +62,12 @@ if response.status_code == 200:
   print('Login successful. Token:', token)
 else:
   print('Login failed. Error:', response.json().get('error'))
-  ```
+```
+
 请确保将 your_username 和 your_password 替换为实际的用户名和密码。
 
 ### 写入数据
+
 使用以下示例Python代码在获取到JWT后将数据写入数据库：
 
 ```python
@@ -82,14 +90,18 @@ if response.status_code == 200:
 else:
   print('Failed to insert data into database. Error:', response.json().get('error'))
 ```
-确保将 `<token>` 替换为之前获取到的的JWT令牌，并将`表名`替换成实际的数据表名。
+
+确保将 `<token>` 替换为之前获取到的的JWT令牌，并将 `表名`替换成实际的数据表名。
 
 ## API端点
- - `POST /api/login`: 用户登录并获取JWT令牌。
- - `POST /api/post/表名`: 将数据写入数据库的`表名`表。
- - `GET /api/get/表名`: 获取`表名`表中的所有数据。
+
+- `POST /api/login`: 用户登录并获取JWT令牌。
+- `POST /api/post/表名`: 将数据写入数据库的 `表名`表。
+- `GET /api/get/表名`: 获取 `表名`表中的所有数据。
+- `GET /api/getacc`和 `POST /api/postacc/表名`：一个通过使用行级锁来修改数据的例子
 
 ## 注意事项
+
 - 请确保在使用API之前将数据库连接信息正确配置到项目中。
 - 在发送请求之前，根据实际情况修改Python示例代码中的URL、用户名、密码和数据对象。
 - 请使用适当的方式来保护和管理JWT令牌，以确保安全性。

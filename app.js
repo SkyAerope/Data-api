@@ -126,11 +126,11 @@ app.get('/api/getacc', authenticateToken, (req, res) => {
       await connection.promise().beginTransaction();
 
       // 锁定表
-      await connection.promise().query('LOCK TABLES `unchecked` WRITE, `checking` WRITE');
+      // await connection.promise().query('LOCK TABLES `unchecked` WRITE, `checking` WRITE');
 
       // 随机选择一条checkcount小于3的记录
       const [rows] = await connection.promise().query(
-        'SELECT `id`, `account`, `checkcount` FROM `unchecked` WHERE `checkcount` < 3 ORDER BY RAND() LIMIT 1'
+        'SELECT `id`, `account`, `checkcount` FROM `unchecked` WHERE `checkcount` < 3 ORDER BY RAND() LIMIT 1 FOR UPDATE'
       );
 
       if (rows.length === 0) {
@@ -149,7 +149,7 @@ app.get('/api/getacc', authenticateToken, (req, res) => {
       await connection.promise().query('DELETE FROM `unchecked` WHERE `id` = ?', [id]);
 
       // 解锁表
-      await connection.promise().query('UNLOCK TABLES');
+      // await connection.promise().query('UNLOCK TABLES');
 
       // 提交事务
       await connection.promise().commit();
@@ -160,7 +160,7 @@ app.get('/api/getacc', authenticateToken, (req, res) => {
     } catch (error) {
       // 如果出现错误，回滚事务，并解锁表
       await connection.promise().rollback();
-      await connection.promise().query('UNLOCK TABLES');
+      // await connection.promise().query('UNLOCK TABLES');
       console.error('Transaction error: ', error);
       // 如果从错误信息是No records found，则返回404状态码
       if (error.message === 'No records found') {
@@ -202,7 +202,7 @@ app.post('/api/postacc/:tableName', authenticateToken, (req, res) => {
 
       // 检查account是否存在于checking表中
       const [rows] = await connection.promise().query(
-        'SELECT `account` FROM `checking` WHERE `account` = ?',
+        'SELECT `account` FROM `checking` WHERE `account` = ? FOR UPDATE',
         [account]
       );
 
