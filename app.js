@@ -126,7 +126,7 @@ app.get('/api/getacc', authenticateToken, (req, res) => {
       await connection.promise().beginTransaction();
 
       // 锁定表
-      await connection.promise().query('LOCK TABLES `unchecked` WRITE');
+      await connection.promise().query('LOCK TABLES `unchecked` WRITE, `checking` WRITE');
 
       // 随机选择一条checkcount小于3的记录
       const [rows] = await connection.promise().query(
