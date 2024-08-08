@@ -202,7 +202,7 @@ app.post('/api/postacc/:tableName', authenticateToken, (req, res) => {
 
       // 检查account是否存在于checking表中
       const [rows] = await connection.promise().query(
-        'SELECT `account` FROM `checking` WHERE `account` = ? FOR UPDATE',
+        'SELECT `account` FROM `checking` WHERE `account` = ?',
         [account]
       );
 
