@@ -130,7 +130,7 @@ app.get('/api/getacc', authenticateToken, (req, res) => {
 
       // 随机选择一条checkcount小于3的记录
       const [rows] = await connection.promise().query(
-        'SELECT `id`, `account`, `checkcount` FROM `unchecked` WHERE `checkcount` < 3 ORDER BY RAND() LIMIT 1 FOR UPDATE'
+        'SELECT `id`, `account`, `checkcount` FROM `unchecked` WHERE `checkcount` < 3 LIMIT 1 FOR UPDATE'
       );
 
       if (rows.length === 0) {
