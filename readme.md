@@ -1,6 +1,6 @@
 # Data-API
 
-这是一个使用Node.js和Express编写的API示例，用于将请求的数据写入MySQL数据库。
+这是一个使用Node.js和Express编写的API示例，用于将请求的数据写入MySQL或Postgres数据库。
 
 ## 安装
 
